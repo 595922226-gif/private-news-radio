@@ -1,0 +1,66 @@
+sources:
+  - name: Reuters World
+    category: international
+    type: rss
+    url: https://www.reutersagency.com/feed/?best-topics=world&post_type=best
+  - name: Associated Press World
+    category: international
+    type: rss
+    url: https://apnews.com/hub/world-news?output=1
+  - name: BBC World
+    category: international
+    type: rss
+    url: https://feeds.bbci.co.uk/news/world/rss.xml
+  - name: The Guardian World
+    category: international
+    type: rss
+    url: https://www.theguardian.com/world/rss
+  - name: Al Jazeera
+    category: international
+    type: rss
+    url: https://www.aljazeera.com/xml/rss/all.xml
+  - name: Deutsche Welle
+    category: europe
+    type: rss
+    url: https://rss.dw.com/rdf/rss-en-all
+  - name: Nikkei Asia
+    category: asia
+    type: rss
+    url: https://asia.nikkei.com/rss/feed/nar
+  - name: The Diplomat
+    category: asia
+    type: rss
+    url: https://thediplomat.com/feed/
+  - name: The Verge
+    category: tech_ai_platform
+    type: rss
+    url: https://www.theverge.com/rss/index.xml
+  - name: TechCrunch
+    category: tech_ai_platform
+    type: rss
+    url: https://techcrunch.com/feed/
+  - name: MIT Technology Review
+    category: tech_ai_platform
+    type: rss
+    url: https://www.technologyreview.com/feed/
+  - name: OpenAI Blog
+    category: tech_ai_platform
+    type: rss
+    url: https://openai.com/news/rss.xml
+  - name: Google Blog
+    category: tech_ai_platform
+    type: rss
+    url: https://blog.google/rss/
+  - name: Apple Newsroom
+    category: tech_ai_platform
+    type: rss
+    url: https://www.apple.com/newsroom/rss-feed.rss
+  - name: 联合早报
+    category: chinese_world
+    type: rss
+    url: https://www.zaobao.com.sg/realtime/rss.xml
+  - name: 中央社
+    category: chinese_world
+    type: rss
+    url: https://www.cna.com.tw/rss/newsworld.xml
+

@@ -1,0 +1,25 @@
+show:
+  title_template: "{date_cn}｜全球情报早餐"
+  timezone: Asia/Tokyo
+  target_minutes_min: 25
+  target_minutes_max: 35
+  speaking_rate_hint: 中等偏慢，适合早上刚醒时听
+
+sections:
+  - name: 开场：今天最重要的5件事
+    target_minutes: 3
+  - name: 国际政治与地缘局势
+    target_minutes: 7
+  - name: 中国与华语世界
+    target_minutes: 5
+  - name: 全球经济、商业与产业变化
+    target_minutes: 5
+  - name: 科技、AI与平台变化
+    target_minutes: 5
+  - name: 文化、娱乐、体育与社会情绪
+    target_minutes: 4
+  - name: 今日重点解读
+    target_minutes: 5
+  - name: 今日可用素材
+    target_minutes: 3
+
