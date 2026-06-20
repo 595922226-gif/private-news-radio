@@ -18,13 +18,16 @@ def write_briefing_and_script(
     briefing_path: Path,
     script_path: Path,
 ) -> None:
-    api_key = os.getenv("OPENAI_API_KEY")
+    api_key = os.getenv("DASHSCOPE_API_KEY")
     if not api_key:
         write_demo_outputs(title, date_id, articles, failures, briefing_path, script_path)
         return
 
-    client = OpenAI(api_key=api_key)
-    model = os.getenv("OPENAI_TEXT_MODEL") or "gpt-4o-mini"
+    client = OpenAI(
+        api_key=api_key,
+        base_url="https://dashscope.aliyuncs.com/compatible-mode/v1",
+    )
+    model = os.getenv("DASHSCOPE_TEXT_MODEL") or "qwen-plus"
 
     source_payload = json.dumps(
         {
@@ -111,7 +114,7 @@ def write_demo_outputs(
     script_path: Path,
 ) -> None:
     sample = articles[:12]
-    lines = [f"# {title}", "", "> 演示模式：未配置 OpenAI API Key，因此这里只展示抓取结果样例。", ""]
+    lines = [f"# {title}", "", "> 演示模式：未配置百炼 API Key，因此这里只展示抓取结果样例。", ""]
     lines.append("## 抓取到的新闻样例")
     for item in sample:
         lines.extend(
@@ -135,10 +138,9 @@ def write_demo_outputs(
     script_path.write_text(
         f"""早上好，今天是{title}。这是你的私人国际情报早餐。
 
-目前项目处于演示模式，还没有配置 OpenAI API Key，所以我先不能生成完整的三十分钟口播稿。
+目前项目处于演示模式，还没有配置百炼 API Key，所以我先不能生成完整的三十分钟口播稿。
 
-系统已经可以抓取新闻、保存简报、记录失败来源。等你填好 OpenAI API Key 后，它会自动生成完整中文简报、口播稿和音频。
+系统已经可以抓取新闻、保存简报、记录失败来源。等你填好百炼 API Key 后，它会自动生成完整中文简报、口播稿和音频。
 """,
         encoding="utf-8",
     )
-

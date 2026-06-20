@@ -4,35 +4,34 @@ import os
 import subprocess
 from pathlib import Path
 
-from openai import OpenAI
+import dashscope
+from dashscope.audio.tts_v2 import SpeechSynthesizer
 
 
 def make_audio(script_path: Path, audio_path: Path) -> bool:
-    api_key = os.getenv("OPENAI_API_KEY")
+    api_key = os.getenv("DASHSCOPE_API_KEY")
     if not api_key:
-        print("OPENAI_API_KEY not set; skip audio generation.")
+        print("DASHSCOPE_API_KEY not set; skip audio generation.")
         return False
 
     text = script_path.read_text(encoding="utf-8").strip()
     if not text:
         return False
 
-    client = OpenAI(api_key=api_key)
-    model = os.getenv("OPENAI_TTS_MODEL") or "gpt-4o-mini-tts"
-    voice = os.getenv("OPENAI_TTS_VOICE") or "alloy"
+    dashscope.api_key = api_key
+    dashscope.base_websocket_api_url = "wss://dashscope.aliyuncs.com/api-ws/v1/inference"
+    model = os.getenv("DASHSCOPE_TTS_MODEL") or "cosyvoice-v3-flash"
+    voice = os.getenv("DASHSCOPE_TTS_VOICE") or "longanyang"
 
-    chunks = split_text(text, max_chars=2800)
+    chunks = split_text(text, max_chars=1500)
     part_paths: list[Path] = []
     for idx, chunk in enumerate(chunks, start=1):
         part_path = audio_path.with_name(f"{audio_path.stem}.part{idx:02d}.mp3")
-        with client.audio.speech.with_streaming_response.create(
-            model=model,
-            voice=voice,
-            input=chunk,
-            response_format="mp3",
-            speed=0.92,
-        ) as response:
-            response.stream_to_file(part_path)
+        synthesizer = SpeechSynthesizer(model=model, voice=voice)
+        audio = synthesizer.call(chunk)
+        if not audio:
+            raise RuntimeError(f"百炼语音合成失败：第 {idx} 段没有返回音频")
+        part_path.write_bytes(audio)
         part_paths.append(part_path)
 
     if len(part_paths) == 1:
@@ -77,4 +76,3 @@ def split_text(text: str, max_chars: int) -> list[str]:
     if current:
         chunks.append(current)
     return chunks
-
