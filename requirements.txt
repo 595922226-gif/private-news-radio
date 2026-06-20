@@ -1,6 +1,5 @@
 requests
 boto3
 openai
-gpt-pipeline
 python-dotenv
 pydantic
