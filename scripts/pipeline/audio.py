@@ -13,12 +13,15 @@ from dashscope.audio.tts_v2 import SpeechSynthesizer
 from .sound_design import create_sound_assets
 
 
-def make_audio(script_path: Path, audio_path: Path) -> dict[str, Any]:
+def make_audio(script_path: Path, audio_path: Path, max_minutes: float = 35) -> dict[str, Any]:
+    speech_rate = float(os.getenv("DASHSCOPE_TTS_SPEED") or "0.93")
     result: dict[str, Any] = {
         "success": False, "duration_seconds": 0, "section_duration_seconds": {},
-        "warnings": [], "settings": {"model": "cosyvoice-v3-flash", "voice": "longanyang",
-                                       "speech_rate": 0.93,
-                                       "style": "中文男中音；中等偏慢；文本短句控制停顿"},
+        "warnings": [], "tts_characters": 0,
+        "settings": {"model": "cosyvoice-v3-flash", "voice": "longsanshu_v3",
+                     "speech_rate": speech_rate, "pitch": "由声音模型决定，未额外改变",
+                     "ssml": False,
+                     "style": "浑厚磁性中文男中音；中等偏慢；文本短句控制停顿"},
     }
     api_key = os.getenv("DASHSCOPE_API_KEY")
     if not api_key:
@@ -33,8 +36,9 @@ def make_audio(script_path: Path, audio_path: Path) -> dict[str, Any]:
     dashscope.api_key = api_key
     dashscope.base_websocket_api_url = "wss://dashscope.aliyuncs.com/api-ws/v1/inference"
     model = os.getenv("DASHSCOPE_TTS_MODEL") or "cosyvoice-v3-flash"
-    voice = os.getenv("DASHSCOPE_TTS_VOICE") or "longanyang"
+    voice = os.getenv("DASHSCOPE_TTS_VOICE") or "longsanshu_v3"
     result["settings"].update({"model": model, "voice": voice})
+    result["tts_characters"] = len(re.sub(r"\[\[.+?]]", "", text))
 
     work = audio_path.parent / "audio_parts"
     work.mkdir(parents=True, exist_ok=True)
@@ -51,7 +55,7 @@ def make_audio(script_path: Path, audio_path: Path) -> dict[str, Any]:
         elif kind == "speech":
             part = work / f"speech-{index:03d}.mp3"
             try:
-                synthesize_with_retry(value, part, model, voice, speech_rate=0.93)
+                synthesize_with_retry(value, part, model, voice, speech_rate=speech_rate)
                 sequence.append((part, current_section))
             except Exception as exc:
                 result["warnings"].append(f"配音片段 {index} 失败并跳过：{exc}")
@@ -76,6 +80,16 @@ def make_audio(script_path: Path, audio_path: Path) -> dict[str, Any]:
         concat_audio(speech, audio_path)
 
     result["duration_seconds"] = round(probe_duration(audio_path), 1)
+    if result["duration_seconds"] > max_minutes * 60:
+        ratio = result["duration_seconds"] / (max_minutes * 60)
+        if ratio <= 1.15:
+            speed_up_audio(audio_path, ratio)
+            result["warnings"].append("实际音频略超时，已在不明显影响听感的范围内自动压缩")
+            result["duration_seconds"] = round(probe_duration(audio_path), 1)
+        else:
+            result["warnings"].append("实际音频超过上限过多，已阻止发送；请压缩口播稿后重新生成")
+            result["success"] = False
+            return result
     result["success"] = audio_path.exists() and audio_path.stat().st_size > 0
     return result
 
@@ -104,7 +118,13 @@ def parse_script(text: str) -> list[tuple[str, str]]:
     return output
 
 
-def synthesize_with_retry(text: str, path: Path, model: str, voice: str, speech_rate: float) -> None:
+def synthesize_with_retry(
+    text: str,
+    path: Path,
+    model: str,
+    voice: str,
+    speech_rate: float,
+) -> None:
     error: Exception | None = None
     for attempt in range(3):
         try:
@@ -125,7 +145,7 @@ def synthesize_with_retry(text: str, path: Path, model: str, voice: str, speech_
 
 def normalize_audio(source: Path, target: Path) -> None:
     subprocess.run(["ffmpeg", "-loglevel", "error", "-y", "-i", str(source), "-ac", "1", "-ar", "44100",
-                    "-b:a", "96k", str(target)], check=True)
+                    "-b:a", "64k", str(target)], check=True)
 
 
 def concat_audio(parts: list[tuple[Path, str]], target: Path) -> None:
@@ -133,8 +153,18 @@ def concat_audio(parts: list[tuple[Path, str]], target: Path) -> None:
     manifest.write_text("\n".join(f"file '{p.resolve()}'" for p, _ in parts), encoding="utf-8")
     temp = target.with_name(f"{target.stem}.mixed.mp3")
     subprocess.run(["ffmpeg", "-loglevel", "error", "-y", "-f", "concat", "-safe", "0", "-i", str(manifest),
-                    "-af", "loudnorm=I=-18:TP=-2:LRA=9", "-b:a", "96k", str(temp)], check=True)
+                    "-af", "loudnorm=I=-18:TP=-2:LRA=9", "-b:a", "64k", str(temp)], check=True)
     temp.replace(target)
+
+
+def speed_up_audio(path: Path, ratio: float) -> None:
+    temp = path.with_name(f"{path.stem}.duration-fit.mp3")
+    subprocess.run(
+        ["ffmpeg", "-loglevel", "error", "-y", "-i", str(path),
+         "-filter:a", f"atempo={ratio:.4f}", "-b:a", "64k", str(temp)],
+        check=True,
+    )
+    temp.replace(path)
 
 
 def probe_duration(path: Path) -> float:

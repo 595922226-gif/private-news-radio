@@ -3,12 +3,36 @@ show:
   timezone: Asia/Tokyo
   target_minutes_min: 25
   target_minutes_max: 35
-  target_script_chinese_chars_min: 7500
-  target_script_chinese_chars_max: 9500
+  target_script_chinese_chars_min: 4000
+  target_script_chinese_chars_max: 5200
+  ideal_script_chinese_chars_min: 4500
+  ideal_script_chinese_chars_max: 5000
   speaking_rate_hint: 中等偏慢，短句，自然停顿，适合早上刚醒时听
   host_style: 聪明、温和、有磁性的中文男中音；轻松但克制，不像广告或客服
   opening_address: 早上好，集聪慧美丽于一身的小宝贝。
+  opening_candidates:
+    - 早上好，小乌，先别急着被碎片信息推着跑。今天这半小时，让你的AI情报管家先替你把世界扫一遍。
+    - 早上好，小乌，今天也不是来追热点的，是来升级认知系统的。现在进入全球情报早餐模式。
+    - 早上好，小乌，你的AI早餐情报电台已经准备好。接下来我会替你提炼今天真正值得记住的信号。
   closing: 好了，以上就是今天的早餐新闻。今天最值得记住的一点是：世界并不是突然变化的，它每天都在通过一些小信号提前告诉我们方向。你要做的，不是追所有热点，而是从这些变化里，看见人、钱、技术和情绪正在往哪里流动。祝你今天清醒、松弛，也有一点点好运。我们明天早上再见。
+
+audio:
+  voice_name: longsanshu_v3
+  speech_rate: 0.93
+  pitch: 由声音模型决定，未额外改变
+  ssml: false
+  bitrate: 64k
+
+cover:
+  title: 我的 AI 早餐情报电台
+  subtitle: 每天早上，AI 自动生成一份国际新闻与商业趋势音频
+  footer: AI Workflow Demo｜Private Intelligence Radio
+
+# 仅用于成本报告的粗略估算，不代表阿里云实际账单。
+cost_estimation:
+  text_input_per_million_tokens: 0.8
+  text_output_per_million_tokens: 2.0
+  tts_per_10000_characters: 1.0
 
 importance_levels:
   A: 90-150秒；事实、背景、影响对象、趋势、个人启发和关键总结
