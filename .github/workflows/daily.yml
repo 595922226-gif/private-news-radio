@@ -2,35 +2,75 @@ name: Daily Private News Radio
 
 on:
   workflow_dispatch:
+    inputs:
+      test_mode:
+        description: "测试模式：只生成3分钟以内音频"
+        type: boolean
+        default: true
+      skip_tts:
+        description: "只检查文字稿，不生成音频"
+        type: boolean
+        default: false
+      reuse_cache:
+        description: "优先复用当天缓存，节省费用"
+        type: boolean
+        default: true
+      generate_demo_only:
+        description: "只从已有完整音频切出30秒试听版"
+        type: boolean
+        default: false
+      skip_news_fetch:
+        description: "复用当天原始新闻"
+        type: boolean
+        default: false
+      skip_llm_rewrite:
+        description: "复用当天口播稿"
+        type: boolean
+        default: false
   schedule:
+    # 22:30 UTC = 07:30 Asia/Tokyo
     - cron: "30 22 * * *"
 
 jobs:
   build:
     runs-on: ubuntu-latest
     timeout-minutes: 60
-
     steps:
-      - name: Download project files
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install audio tools
-        run: sudo apt-get update && sudo apt-get install -y ffmpeg
+      - name: Install ffmpeg and Chinese fonts
+        run: sudo apt-get update && sudo apt-get install -y ffmpeg fonts-noto-cjk
 
-      - name: Prepare Python
+      - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
-      - name: Install required components
+      - name: Install dependencies
         run: pip install -r requirements.txt
+
+      - name: Restore previous daily cache
+        uses: actions/cache@v4
+        with:
+          path: output/
+          key: daily-output-${{ github.ref_name }}-${{ github.run_id }}
+          restore-keys: |
+            daily-output-${{ github.ref_name }}-
 
       - name: Run daily radio
         env:
           DASHSCOPE_API_KEY: ${{ secrets.DASHSCOPE_API_KEY }}
           DASHSCOPE_TEXT_MODEL: qwen-plus
           DASHSCOPE_TTS_MODEL: cosyvoice-v3-flash
-          DASHSCOPE_TTS_VOICE: longanyang
+          DASHSCOPE_TTS_VOICE: longsanshu_v3
+          DASHSCOPE_TTS_SPEED: "0.93"
+          TEST_MODE: ${{ inputs.test_mode }}
+          SKIP_TTS: ${{ inputs.skip_tts }}
+          REUSE_CACHE: ${{ inputs.reuse_cache }}
+          GENERATE_DEMO_ONLY: ${{ inputs.generate_demo_only }}
+          SKIP_NEWS_FETCH: ${{ inputs.skip_news_fetch }}
+          SKIP_LLM_REWRITE: ${{ inputs.skip_llm_rewrite }}
           SMTP_HOST: ${{ secrets.SMTP_HOST }}
           SMTP_PORT: ${{ secrets.SMTP_PORT }}
           SMTP_USER: ${{ secrets.SMTP_USER }}
