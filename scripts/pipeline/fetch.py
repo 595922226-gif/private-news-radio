@@ -63,7 +63,9 @@ def fetch_rss_source(source: dict[str, Any], since: datetime) -> list[dict[str, 
                 "source": source["name"],
                 "category": source.get("category", "general"),
                 "title": title,
+                "original_title": title,
                 "summary": summary[:600],
+                "content_scope": "title_and_summary" if summary else "title_only",
                 "link": link,
                 "published": published.isoformat() if published else "",
             }
@@ -100,4 +102,3 @@ def dedupe_articles(articles: list[dict[str, Any]]) -> list[dict[str, Any]]:
         seen.add(key)
         result.append(article)
     return result[:120]
-

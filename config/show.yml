@@ -3,23 +3,40 @@ show:
   timezone: Asia/Tokyo
   target_minutes_min: 25
   target_minutes_max: 35
-  speaking_rate_hint: 中等偏慢，适合早上刚醒时听
+  target_script_chinese_chars_min: 7500
+  target_script_chinese_chars_max: 9500
+  speaking_rate_hint: 中等偏慢，短句，自然停顿，适合早上刚醒时听
+  host_style: 聪明、温和、有磁性的中文男中音；轻松但克制，不像广告或客服
+  opening_address: 早上好，集聪慧美丽于一身的小宝贝。
+  closing: 好了，以上就是今天的早餐新闻。今天最值得记住的一点是：世界并不是突然变化的，它每天都在通过一些小信号提前告诉我们方向。你要做的，不是追所有热点，而是从这些变化里，看见人、钱、技术和情绪正在往哪里流动。祝你今天清醒、松弛，也有一点点好运。我们明天早上再见。
+
+importance_levels:
+  A: 90-150秒；事实、背景、影响对象、趋势、个人启发和关键总结
+  B: 45-75秒；事实、必要背景和简短解释
+  C: 20-40秒；简明事实与一句意义
 
 sections:
-  - name: 开场：今天最重要的5件事
-    target_minutes: 3
+  - name: 开场与日期提示
+    target_minutes: 1.5
+  - name: 今日最重要的5件事
+    target_minutes: 3.5
   - name: 国际政治与地缘局势
-    target_minutes: 7
+    target_minutes: 5.5
   - name: 中国与华语世界
-    target_minutes: 5
+    target_minutes: 4.5
   - name: 全球经济、商业与产业变化
-    target_minutes: 5
+    target_minutes: 4.5
   - name: 科技、AI与平台变化
-    target_minutes: 5
-  - name: 文化、娱乐、体育与社会情绪
-    target_minutes: 4
+    target_minutes: 4.5
+  - name: 媒体、社交平台与创作者经济
+    target_minutes: 2.5
+  - name: 社会情绪与人群趋势
+    target_minutes: 2.5
+  - name: 文化、娱乐、体育与流行趋势
+    target_minutes: 2.5
+  - name: 科学、健康、气候与公共安全
+    target_minutes: 1.5
   - name: 今日重点解读
-    target_minutes: 5
-  - name: 今日可用素材
-    target_minutes: 3
-
+    target_minutes: 4.5
+  - name: 今日可用素材与结尾
+    target_minutes: 2.5

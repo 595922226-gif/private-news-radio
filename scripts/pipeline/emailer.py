@@ -4,6 +4,7 @@ import os
 import smtplib
 from email.message import EmailMessage
 from pathlib import Path
+from typing import Any
 
 
 def send_daily_email(
@@ -13,6 +14,7 @@ def send_daily_email(
     audio_path: Path | None,
     urls: dict[str, str],
     failures: list[dict[str, str]],
+    audio_info: dict[str, Any] | None = None,
 ) -> None:
     if not has_email_config():
         print("Email config not complete; skip email.")
@@ -23,6 +25,8 @@ def send_daily_email(
 
     body = [
         title,
+        "",
+        f"节目时长：{round((audio_info or {}).get('duration_seconds', 0) / 60, 1)} 分钟",
         "",
         "今日音频：",
         latest_audio or "音频未生成或未上传。",
@@ -80,4 +84,3 @@ def send_message(msg: EmailMessage) -> None:
         smtp.starttls()
         smtp.login(os.environ["SMTP_USER"], os.environ["SMTP_PASSWORD"])
         smtp.send_message(msg)
-
